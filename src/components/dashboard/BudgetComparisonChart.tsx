@@ -32,7 +32,7 @@ export default function BudgetComparisonChart({ data }: BudgetComparisonChartPro
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-md">
+    <div className="bg-gray-900 p-4 rounded-xl shadow-md">
       <h2 className="text-xl font-semibold mb-4">Budget vs Actual</h2>
       <Bar data={chartData} options={{ responsive: true }} />
     </div>

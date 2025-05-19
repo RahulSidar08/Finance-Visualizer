@@ -20,7 +20,7 @@ function formatDate(dateString: string) {
 
 export default function RecentTransactions({ transactions }: { transactions: Transaction[] }) {
     return (
-        <Card>
+        <Card className="bg-gray-900 text-white">
             <CardContent className="p-4">
                 <CardTitle className="text-xl font-semibold mb-4">Recent Transactions</CardTitle>
                 {transactions.length === 0 ? (

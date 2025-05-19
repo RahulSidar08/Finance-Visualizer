@@ -108,7 +108,7 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 bg-gray-50 p-8 overflow-auto">
+      <main className="flex-1 bg-gray-800 text-white p-8 overflow-auto">
         {activeTab === "summary" && (
           <SummaryCards
             total={totalExpenses}

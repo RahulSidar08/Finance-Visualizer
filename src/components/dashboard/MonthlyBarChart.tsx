@@ -26,7 +26,7 @@ export default function MonthlyBarChart({ data }: MonthlyBarChartProps) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-md">
+    <div className="bg-gray-900 p-4 rounded-xl shadow-md">
       <h2 className="text-xl font-semibold mb-4">Monthly Expenses</h2>
       <Bar 
         data={chartData} 
