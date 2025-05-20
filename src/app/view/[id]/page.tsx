@@ -1,4 +1,21 @@
 "use client";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+
+const categories = [
+  "Food",
+  "Rent",
+  "Travel",
+  "Shopping",
+  "Entertainment",
+  "Utilities",
+  "Other",
+];
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,6 +27,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
 
     const [transaction, setTransaction] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+      const [category, setCategory] = useState(categories[0]);
     const [amount, setAmount] = useState("");
     const [description, setDescription] = useState("");
     const [date, setDate] = useState("");
@@ -40,6 +58,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
                 amount,
                 description,
                 date,
+                category
             });
             router.push("/view"); // redirect after edit
         } catch (err) {
@@ -86,6 +105,27 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
                         required
                     />
                 </div>
+                          <div className="flex flex-col space-y-2">
+                            <label htmlFor="category" className="mb-1">
+                              Category
+                            </label>
+                            <Select
+                              onValueChange={(value) => setCategory(value)}
+                              value={category}
+                              defaultValue={categories[0]}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-black hover:bg-black text-white">
+                                {categories.map((cat) => (
+                                  <SelectItem key={cat} value={cat}>
+                                    {cat}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                 <button
                     type="submit"
                     className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"

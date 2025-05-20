@@ -15,6 +15,7 @@ interface BudgetComparisonChartProps {
 }
 
 export default function BudgetComparisonChart({ data }: BudgetComparisonChartProps) {
+  console.log("budget comparison Chart",data)
   const chartData = {
     labels: data.map(d => d.category),
     datasets: [

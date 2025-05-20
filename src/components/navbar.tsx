@@ -10,19 +10,19 @@ export default function Navbar() {
             <div className="flex space-x-6 text-lg">
                 <Link
                     href="/view"
-                    className="text-gray-300 hover:text-blue-400 underline underline-offset-4 transition duration-300"
+                    className="text-gray-300 hover:text-blue-400  transition duration-300"
                 >
                     View
                 </Link>
                 <Link
                     href="/add"
-                    className="text-gray-300 hover:text-blue-400 underline underline-offset-4 transition duration-300"
+                    className="text-gray-300 hover:text-blue-400  transition duration-300"
                 >
                     Add
                 </Link>
                 <Link
                     href="/dashboard"
-                    className="text-gray-300 hover:text-blue-400 underline underline-offset-4 transition duration-300"
+                    className="text-gray-300 hover:text-blue-400  transition duration-300"
                 >
                     Dashboard
                 </Link>

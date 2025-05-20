@@ -17,6 +17,7 @@ export default function SummaryCards({
   topCategory,
   budget,
 }: SummaryCardsProps) {
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-gray-800 text-white ">
       <Card className="bg-gray-900 text-white">
@@ -40,7 +41,7 @@ export default function SummaryCards({
       <Card className="bg-gray-900 text-white">
         <CardContent className="p-4">
           <CardTitle>Budget Used</CardTitle>
-          <p className="text-2xl font-bold">{budget.percentageUsed}%</p>
+          <p className="text-2xl font-bold">${budget.percentageUsed.toFixed(3)}%</p>
         </CardContent>
       </Card>
     </div>

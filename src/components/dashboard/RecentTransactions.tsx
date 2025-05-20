@@ -18,12 +18,17 @@ function formatDate(dateString: string) {
     return format(date, "dd MMM yyyy");
 }
 
-export default function RecentTransactions({ transactions }: { transactions: Transaction[] }) {
+export default function RecentTransactions({ transactions }: { transactions?: Transaction[] }) {
+    // Defensive fallback to empty array if transactions is undefined or not an array
+    console.log("rt",transactions)
+    const safeTransactions = Array.isArray(transactions) ? transactions : [];
+    console.log("recent Transaction",safeTransactions)
+
     return (
         <Card className="bg-gray-900 text-white">
             <CardContent className="p-4">
                 <CardTitle className="text-xl font-semibold mb-4">Recent Transactions</CardTitle>
-                {transactions.length === 0 ? (
+                {safeTransactions.length === 0 ? (
                     <p className="text-muted-foreground">No recent transactions.</p>
                 ) : (
                     <Table>
@@ -36,7 +41,7 @@ export default function RecentTransactions({ transactions }: { transactions: Tra
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {transactions.slice(0, 5).map((tx) => (
+                            {safeTransactions.slice(0, 5).map((tx) => (
                                 <TableRow key={tx._id}>
                                     <TableCell>{formatDate(tx.date)}</TableCell>
                                     <TableCell>{tx.description}</TableCell>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import SummaryCards from "@/components/dashboard/SummaryCards";
 import MonthlyBarChart from "@/components/dashboard/MonthlyBarChart";
@@ -8,125 +9,181 @@ import CategoryPieChart from "@/components/dashboard/CategoryPieChart";
 import BudgetComparisonChart from "@/components/dashboard/BudgetComparisonChart";
 import RecentTransactions from "@/components/dashboard/RecentTransactions";
 
-export default function DashboardLayout() {
-  // Simple state to track active page
-  const [activeTab, setActiveTab] = useState("summary");
+interface Transaction {
+  _id: string;
+  amount: number;
+  description: string;
+  category: string;
+  date: string;
+}
 
-  // Dummy data for demo - replace with your actual data or fetch logic
-  const dummyTransactions = [
-    {
-      _id: "1",
-      amount: 500,
-      description: "Groceries",
-      category: "Food",
-      date: "2025-05-01",
-    },
-    {
-      _id: "2",
-      amount: 1500,
-      description: "Rent",
-      category: "Housing",
-      date: "2025-05-03",
-    },
-    // Add more as needed
-  ];
+interface Budget {
+  percentageUsed: number;
+}
 
-  const dummyCategoryData = [
-    { category: "Food", amount: 1200 },
-    { category: "Housing", amount: 2500 },
-    { category: "Transport", amount: 600 },
-  ];
+interface MonthlyExpense {
+  month: string;
+  total: number;
+}
 
-  const dummyBudgetData = [
-    { category: "Food", budget: 1500, actual: 1200 },
-    { category: "Housing", budget: 3000, actual: 2500 },
-    { category: "Transport", budget: 700, actual: 600 },
-  ];
+interface CategoryData {
+  category: string;
+  amount: number;
+}
 
-  const totalExpenses = dummyTransactions.reduce(
-    (sum, tx) => sum + tx.amount,
-    0
-  );
+interface BudgetComparisonData {
+  category: string;
+  budget: number;
+  actual: number;
+}
 
-  const topCategory = dummyCategoryData.reduce((max, item) =>
-    item.amount > max.amount ? item : max
-  ).category;
+function normalizeTransaction(tx: any): Transaction | null {
+  // Basic validation and normalization of a transaction object
+  if (!tx) return null;
 
-  const budgetUsage = {
-    percentageUsed: Math.round(
-      (dummyTransactions.reduce((sum, tx) => sum + tx.amount, 0) /
-        dummyBudgetData.reduce((sum, b) => sum + b.budget, 0)) *
-        100
-    ),
+  // Ensure required fields exist and correct types
+  const _id = tx._id || tx.id || ""; // try id if _id not present
+  const amount = typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount;
+  const description = tx.description || "";
+  const category = tx.category || "Uncategorized";
+  const date = tx.date || "";
+
+  if (!_id || isNaN(amount) || !description || !category || !date) {
+    console.warn("Skipping invalid transaction", tx);
+    return null;
+  }
+
+  return {
+    _id,
+    amount,
+    description,
+    category,
+    date,
   };
+}
+
+export default function DashboardLayout() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [budget, setBudget] = useState<Budget>({ percentageUsed: 0 });
+  const [monthlyExpenses, setMonthlyExpenses] = useState<MonthlyExpense[]>([]);
+  const [categoryExpenses, setCategoryExpenses] = useState<CategoryData[]>([]);
+  const [budgetComparison, setBudgetComparison] = useState<BudgetComparisonData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("summary");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [
+          transactionsRes,
+          budgetRes,
+          monthlyRes,
+          categoryRes,
+          comparisonRes,
+          recentTransactionsRes,
+        ] = await Promise.all([
+          axios.get("/api/get-transaction"),
+          axios.get("/api/get-budget"),
+          axios.get("/api/monthly-expense"),
+          axios.get("/api/category-expense"),
+          axios.get("/api/budget-comparison"),
+          axios.get("/api/recent-transaction"),
+        ]);
+
+        // Validate and normalize transactions data
+        const transactionsDataRaw = transactionsRes.data.transactions || [];
+        const transactionsData = transactionsDataRaw
+          .map(normalizeTransaction)
+          .filter((tx:any): tx is Transaction => tx !== null);
+
+        const budgetData = budgetRes.data;
+        const monthlyData: MonthlyExpense[] = monthlyRes.data;
+        const categoryData: CategoryData[] = categoryRes.data;
+        const comparisonData: BudgetComparisonData[] = comparisonRes.data;
+
+        // Normalize recent transactions with same function
+        const recentTransactionsRaw = recentTransactionsRes.data.transactions || [];
+        const recentTransactionsData = recentTransactionsRaw
+          .map(normalizeTransaction)
+          .filter((tx:any): tx is Transaction => tx !== null);
+
+        console.log("Normalized recent transactions:", recentTransactionsData);
+
+        // Calculate total budget and spent
+        const totalBudget = Array.isArray(budgetData?.budgets)
+          ? budgetData.budgets.reduce((sum: number, b: any) => sum + b.amount, 0)
+          : 0;
+
+        const totalSpent = transactionsData.reduce((sum: number, t: Transaction) => sum + t.amount, 0);
+        const percentageUsed = totalBudget ? (totalSpent / totalBudget) * 100 : 0;
+
+        setTransactions(transactionsData);
+        setBudget({ percentageUsed: Math.min(percentageUsed, 100) }); // Clamp to 100%
+        setMonthlyExpenses(monthlyData);
+        setCategoryExpenses(categoryData);
+        setBudgetComparison(comparisonData);
+        setRecentTransactions(recentTransactionsData);
+      } catch (err: any) {
+        setError(err.message || "Unknown error occurred");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const total = transactions.reduce((sum, txn) => sum + txn.amount, 0);
+
+  const categoryTotals: Record<string, number> = {};
+  transactions.forEach(({ amount, category }) => {
+    categoryTotals[category] = (categoryTotals[category] || 0) + amount;
+  });
+
+  const topCategory =
+    Object.entries(categoryTotals)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (error) return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white p-6 flex flex-col space-y-4">
         <h1 className="text-2xl font-bold mb-6">Finance Dashboard</h1>
-        <button
-          className={`text-left px-3 py-2 rounded ${
-            activeTab === "summary" ? "bg-indigo-600" : "hover:bg-indigo-700"
-          }`}
-          onClick={() => setActiveTab("summary")}
-        >
-          Summary
-        </button>
-        <button
-          className={`text-left px-3 py-2 rounded ${
-            activeTab === "monthly" ? "bg-indigo-600" : "hover:bg-indigo-700"
-          }`}
-          onClick={() => setActiveTab("monthly")}
-        >
-          Monthly Expenses
-        </button>
-        <button
-          className={`text-left px-3 py-2 rounded ${
-            activeTab === "categories" ? "bg-indigo-600" : "hover:bg-indigo-700"
-          }`}
-          onClick={() => setActiveTab("categories")}
-        >
-          Categories
-        </button>
-        <button
-          className={`text-left px-3 py-2 rounded ${
-            activeTab === "budget" ? "bg-indigo-600" : "hover:bg-indigo-700"
-          }`}
-          onClick={() => setActiveTab("budget")}
-        >
-          Budget Comparison
-        </button>
-        <button
-          className={`text-left px-3 py-2 rounded ${
-            activeTab === "recent" ? "bg-indigo-600" : "hover:bg-indigo-700"
-          }`}
-          onClick={() => setActiveTab("recent")}
-        >
-          Recent Transactions
-        </button>
+        {["summary", "monthly", "categories", "budget", "recent"].map((tab) => (
+          <button
+            key={tab}
+            className={`text-left px-3 py-2 rounded ${
+              activeTab === tab ? "bg-indigo-600" : "hover:bg-indigo-700"
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1).replace("-", " ")}
+          </button>
+        ))}
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 bg-gray-800 text-white p-8 overflow-auto">
         {activeTab === "summary" && (
           <SummaryCards
-            total={totalExpenses}
-            transactions={dummyTransactions}
+            total={total}
+            transactions={transactions}
             topCategory={topCategory}
-            budget={budgetUsage}
+            budget={budget}
           />
         )}
-        {activeTab === "monthly" && <MonthlyBarChart data={[
-          { month: "Jan", total: 1200 },
-          { month: "Feb", total: 900 },
-          { month: "Mar", total: 1500 },
-          { month: "Apr", total: 1100 },
-          { month: "May", total: 1800 },
-        ]} />}
-        {activeTab === "categories" && <CategoryPieChart data={dummyCategoryData} />}
-        {activeTab === "budget" && <BudgetComparisonChart data={dummyBudgetData} />}
-        {activeTab === "recent" && <RecentTransactions transactions={dummyTransactions} />}
+        {activeTab === "monthly" && <MonthlyBarChart data={monthlyExpenses} />}
+        {activeTab === "categories" && <CategoryPieChart data={categoryExpenses} />}
+        {activeTab === "budget" && <BudgetComparisonChart data={budgetComparison} />}
+        {activeTab === "recent" && <RecentTransactions transactions={recentTransactions} />}
       </main>
     </div>
   );
