@@ -25,7 +25,7 @@ export default function RecentTransactions({ transactions }: { transactions?: Tr
     console.log("recent Transaction",safeTransactions)
 
     return (
-        <Card className="bg-gray-900 text-white">
+        <Card className="bg-black text-white">
             <CardContent className="p-4">
                 <CardTitle className="text-xl font-semibold mb-4">Recent Transactions</CardTitle>
                 {safeTransactions.length === 0 ? (

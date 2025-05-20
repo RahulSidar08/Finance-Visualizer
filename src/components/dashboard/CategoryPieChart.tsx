@@ -25,7 +25,7 @@ export default function CategoryPieChart({ data }: CategoryPieChartProps) {
     };
 
     return (
-        <div className="flex-1 h-screen bg-gray-900 flex items-center justify-center">
+        <div className="flex-1 h-screen bg-black flex items-center justify-center">
             <div className="bg-gray-800 rounded-xl shadow-lg p-6 w-full max-w-xl">
                 <h2 className="text-2xl font-semibold text-white text-center mb-6">Category Breakdown</h2>
                 <div className="h-96">
