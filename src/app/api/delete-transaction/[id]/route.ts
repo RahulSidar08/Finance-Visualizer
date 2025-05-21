@@ -1,11 +1,10 @@
+import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/connectDb";
 import TransactionModel from "@/model/transactionModel";
-import { NextResponse, NextRequest } from "next/server";
 
-// Correct DELETE handler for dynamic route
 export async function DELETE(
-  _request: NextRequest,
-  context: { params: { id: string } }
+  request: NextRequest,
+  context: { params: Record<string, string> } // 👈 This is the key change
 ) {
   try {
     await connectDb();
@@ -16,18 +15,15 @@ export async function DELETE(
 
     if (!transaction) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Transaction not found",
-        },
+        { success: false, message: "Transaction not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Transaction deleted successfully",
-    });
+    return NextResponse.json(
+      { success: true, message: "Transaction deleted successfully" },
+      { status: 200 }
+    );
 
   } catch (error) {
     return NextResponse.json(
