@@ -2,14 +2,14 @@ import connectDb from "@/lib/connectDb";
 import TransactionModel from "@/model/transactionModel";
 import { NextRequest, NextResponse } from "next/server";
 
-// Correct handler signature for dynamic route
+// Updated handler signature for Next.js 15+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params; // Await the params Promise
     await connectDb();
-    const { id } = params;
 
     const transaction = await TransactionModel.findById(id);
 
