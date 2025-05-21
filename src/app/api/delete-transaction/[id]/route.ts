@@ -3,14 +3,14 @@ import connectDb from "@/lib/connectDb";
 import TransactionModel from "@/model/transactionModel";
 
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
     await connectDb();
 
-    const { id } = params;
+    // Extract the 'id' from the URL
+    const url = new URL(request.url);
+    const parts = url.pathname.split("/");
+    const id = parts[parts.length - 1];
 
     const transaction = await TransactionModel.findByIdAndDelete(id);
 
@@ -36,4 +36,5 @@ export async function DELETE(
     );
   }
 }
+
 
