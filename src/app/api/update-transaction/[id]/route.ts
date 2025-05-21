@@ -4,12 +4,12 @@ import TransactionModel from "@/model/transactionModel";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDb();
 
-    const { id } = params;
+    const { id } =await params;
     const transaction = await TransactionModel.findById(id);
 
     if (!transaction) {
