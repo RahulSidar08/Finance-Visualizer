@@ -33,22 +33,22 @@ export interface BudgetComparisonData {
 
 interface BudgetItem {
     amount: number;
-    [key: string]: any; // in case budget item has extra props
+    [key: string]: unknown;
 }
 
 function normalizeTransaction(tx: unknown): Transaction | null {
     if (!tx || typeof tx !== "object") return null;
-    const obj = tx as Record<string, any>;
+    const obj = tx as Partial<Transaction> & { [key: string]: unknown };
 
-    const _id = obj._id || obj.id || "";
+    const _id = typeof obj._id === "string" ? obj._id : (typeof obj.id === "string" ? obj.id : "");
     const amount = typeof obj.amount === "string" ? parseFloat(obj.amount) : obj.amount;
-    const description = obj.description || "";
-    const category = obj.category || "Uncategorized";
-    const date = obj.date || "";
+    const description = typeof obj.description === "string" ? obj.description : "";
+    const category = typeof obj.category === "string" ? obj.category : "Uncategorized";
+    const date = typeof obj.date === "string" ? obj.date : "";
 
-    if (!_id || isNaN(amount) || !description || !category || !date) return null;
+    if (!_id || isNaN(amount as number) || !description || !category || !date) return null;
 
-    return { _id, amount, description, category, date };
+    return { _id, amount: amount as number, description, category, date };
 }
 
 export function useDashboardData() {
@@ -105,9 +105,10 @@ export function useDashboardData() {
                     .filter((tx:Transaction): tx is Transaction => tx !== null);
 
                 const categoryTotals: Record<string, number> = {};
-                transactions.forEach(({ amount, category }: Transaction) => {
+                transactions.forEach(({ amount, category } : Transaction) => {
                     categoryTotals[category] = (categoryTotals[category] || 0) + amount;
                 });
+
                 const topCategory =
                     Object.entries(categoryTotals).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
 
@@ -118,7 +119,7 @@ export function useDashboardData() {
                       }, 0)
                     : 0;
 
-                const totalSpent = transactions.reduce((sum: number, t: Transaction) => sum + t.amount, 0);
+                const totalSpent = transactions.reduce((sum:number, t:Transaction) => sum + t.amount, 0);
 
                 const percentageUsed = totalBudget ? (totalSpent / totalBudget) * 100 : 0;
 
@@ -132,8 +133,12 @@ export function useDashboardData() {
                     budgetData: comparisonRes.data,
                     recentTransactions,
                 });
-            } catch (err: any) {
-                setError(err.message || "Failed to load dashboard data");
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError("Failed to load dashboard data");
+                }
             } finally {
                 setLoading(false);
             }
