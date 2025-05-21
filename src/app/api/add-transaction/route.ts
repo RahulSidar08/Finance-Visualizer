@@ -7,8 +7,7 @@ import TransactionModel from "@/model/transactionModel";
 export async function POST(request: Request) {
   try {
     await connectDb();
-    let { amount, date, description, category } = await request.json();
-    console.log(amount, date, description, category);
+    const { amount, date, description, category } = await request.json();
 
     const newTransaction = await TransactionModel.create({
       amount,

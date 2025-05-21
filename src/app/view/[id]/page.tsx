@@ -17,6 +17,14 @@ const categories = [
   "Other",
 ];
 
+interface Transaction {
+    _id: string;
+    amount: number;
+    description: string;
+    category: string;
+    date: string;
+}
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -25,7 +33,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
     const { id } = use(params);
     const router = useRouter();
 
-    const [transaction, setTransaction] = useState<any>(null);
+    const [transaction, setTransaction] = useState<Transaction | null>(null);
     const [loading, setLoading] = useState(true);
       const [category, setCategory] = useState(categories[0]);
     const [amount, setAmount] = useState("");

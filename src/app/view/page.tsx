@@ -19,8 +19,15 @@ import {
 import { MoreVertical } from "lucide-react"; // or any 3-dot icon you prefer
 import { useRouter } from "next/navigation";
 
+interface Transaction {
+    _id: string;
+    amount: number;
+    description: string;
+    category: string;
+    date: string;
+}
 export default function Transactions() {
-    const [transactionData, setTransactionData] = useState<any[]>([]);
+    const [transactionData, setTransactionData] = useState<Transaction | any>([]);
     const router = useRouter()
     useEffect(() => {
         const getData = async () => {
