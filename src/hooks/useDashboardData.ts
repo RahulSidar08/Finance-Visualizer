@@ -31,13 +31,20 @@ export interface BudgetComparisonData {
     actual: number;
 }
 
-function normalizeTransaction(tx: any): Transaction | null {
-    if (!tx) return null;
-    const _id = tx._id || tx.id || "";
-    const amount = typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount;
-    const description = tx.description || "";
-    const category = tx.category || "Uncategorized";
-    const date = tx.date || "";
+interface BudgetItem {
+    amount: number;
+    [key: string]: any; // in case budget item has extra props
+}
+
+function normalizeTransaction(tx: unknown): Transaction | null {
+    if (!tx || typeof tx !== "object") return null;
+    const obj = tx as Record<string, any>;
+
+    const _id = obj._id || obj.id || "";
+    const amount = typeof obj.amount === "string" ? parseFloat(obj.amount) : obj.amount;
+    const description = obj.description || "";
+    const category = obj.category || "Uncategorized";
+    const date = obj.date || "";
 
     if (!_id || isNaN(amount) || !description || !category || !date) return null;
 
@@ -90,21 +97,25 @@ export function useDashboardData() {
                 ]);
 
                 const transactions = (transactionsRes.data.transactions || [])
-                    .map(normalizeTransaction)
-                    .filter((tx: any): tx is Transaction => tx !== null);
+                    .map((tx: unknown) => normalizeTransaction(tx))
+                    .filter((tx:Transaction): tx is Transaction => tx !== null);
 
                 const recentTransactions = (recentTransactionsRes.data.transactions || [])
-                    .map(normalizeTransaction)
-                    .filter((tx: any): tx is Transaction => tx !== null);
+                    .map((tx: unknown) => normalizeTransaction(tx))
+                    .filter((tx:Transaction): tx is Transaction => tx !== null);
 
                 const categoryTotals: Record<string, number> = {};
-                transactions.forEach(({ amount, category }: any) => {
+                transactions.forEach(({ amount, category }: Transaction) => {
                     categoryTotals[category] = (categoryTotals[category] || 0) + amount;
                 });
-                const topCategory = Object.entries(categoryTotals).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+                const topCategory =
+                    Object.entries(categoryTotals).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
 
                 const totalBudget = Array.isArray(budgetRes.data?.budgets)
-                    ? budgetRes.data.budgets.reduce((sum: number, b: any) => sum + b.amount, 0)
+                    ? budgetRes.data.budgets.reduce((sum: number, b: BudgetItem) => {
+                          const amount = typeof b?.amount === "number" ? b.amount : 0;
+                          return sum + amount;
+                      }, 0)
                     : 0;
 
                 const totalSpent = transactions.reduce((sum: number, t: Transaction) => sum + t.amount, 0);

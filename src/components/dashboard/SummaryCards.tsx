@@ -4,9 +4,18 @@ interface Budget {
   percentageUsed: number;
 }
 
+interface Transaction {
+  _id: string;
+  amount: number;
+  description: string;
+  category: string;
+  date: string;
+}
+
+
 interface SummaryCardsProps {
   total: number;
-  transactions: any;
+  transactions: Transaction[];
   topCategory: string;
   budget: Budget;
 }

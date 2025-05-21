@@ -27,7 +27,7 @@ interface Transaction {
     date: string;
 }
 export default function Transactions() {
-    const [transactionData, setTransactionData] = useState<Transaction | any>([]);
+const [transactionData, setTransactionData] = useState<Transaction[]>([]);
     const router = useRouter()
     useEffect(() => {
         const getData = async () => {
@@ -57,7 +57,7 @@ export default function Transactions() {
             if (res.data.success) {
                 console.log("Transaction deleted successfully");
                 // Optionally update UI after deletion
-                setTransactionData((prev: any[]) => prev.filter(txn => txn._id !== id));
+                setTransactionData((prev: Transaction[]) => prev.filter(txn => txn._id !== id));
             } else {
                 console.warn("Failed to delete transaction:", res.data.message);
             }
