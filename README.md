@@ -40,7 +40,7 @@ Finalyze is a powerful and intuitive web application designed to help users trac
 Clone the repo:
 
 ```bash
-git clone https://github.com/RahulSidar08/InsightAI-Times.git
+git clone https://github.com/RahulSidar08/Finance-Visualizer.git
   
 ```
 
