@@ -1,19 +1,16 @@
 import connectDb from "@/lib/connectDb";
 import TransactionModel from "@/model/transactionModel";
-import { NextResponse } from "next/server";
-
-interface Context {
-    params: {
-        id: string;
-    };
-}
+import { NextResponse, NextRequest } from "next/server";
 
 
-export async function DELETE( context: Context) {
+export async function DELETE(
+    _request: NextRequest,
+    { params }: { params: { id: string } }
+) {
     try {
         await connectDb();
 
-        const { id } = await context.params;
+        const { id } = params;
 
         const transaction = await TransactionModel.findByIdAndDelete(id);
 
