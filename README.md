@@ -2,7 +2,7 @@
 #  Finance Visualizer
 # Finalyze (Finance + analyze)
 
-Finance Visualizer is a powerful and intuitive web application designed to help users track, analyze, and visualize their personal or business financial data. With dynamic charts and insightful summaries, it provides a clear picture of income, expenses.
+Finalyze is a powerful and intuitive web application designed to help users track, analyze, and visualize their personal or business financial data. With dynamic charts and insightful summaries, it provides a clear picture of income, expenses.
 
 
  # 🚀 Features
