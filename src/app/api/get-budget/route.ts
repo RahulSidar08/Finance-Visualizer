@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import connectDb from "@/lib/connectDb";
 import Budget from "@/model/BudgetModel";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     await connectDb();
 

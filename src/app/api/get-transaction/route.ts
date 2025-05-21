@@ -2,7 +2,7 @@ import connectDb from "@/lib/connectDb";
 import TransactionModel from "@/model/transactionModel";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     await connectDb();
     const transactions = await TransactionModel.find();

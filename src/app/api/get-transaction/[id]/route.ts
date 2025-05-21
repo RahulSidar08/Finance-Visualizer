@@ -8,7 +8,7 @@ interface Context {
   };
 }
 
-export async function GET(request: Request, context: Context) {
+export async function GET( context: Context) {
   try {
     await connectDb();
     const { id } = context.params;

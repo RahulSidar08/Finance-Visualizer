@@ -9,7 +9,7 @@ interface Context {
 }
 
 
-export async function DELETE(request: Request, context: Context) {
+export async function DELETE( context: Context) {
     try {
         await connectDb();
 

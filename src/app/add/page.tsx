@@ -52,6 +52,7 @@ export default function Page() {
       }
     } catch (error) {
       setMessage("An error occurred. Please try again.");
+      console.error(error)
     } finally {
       setLoading(false);
     }
