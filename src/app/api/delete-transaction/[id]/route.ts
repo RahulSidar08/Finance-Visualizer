@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/connectDb";
 import TransactionModel from "@/model/transactionModel";
 
+
 export async function DELETE(
   request: NextRequest,
-  context: { params: Record<string, string> } // 👈 This is the key change
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDb();
 
-    const { id } = context.params;
+    const { id } = params;
 
     const transaction = await TransactionModel.findByIdAndDelete(id);
 
@@ -24,7 +25,6 @@ export async function DELETE(
       { success: true, message: "Transaction deleted successfully" },
       { status: 200 }
     );
-
   } catch (error) {
     return NextResponse.json(
       {
@@ -36,3 +36,4 @@ export async function DELETE(
     );
   }
 }
+
