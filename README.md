@@ -49,3 +49,12 @@ npm install
 npm run dev
 
 ```
+
+
+## Deployment
+
+The Project is deployed on Vercel and can be accessed at:
+
+```bash
+https://finalyze-seven.vercel.app
+```
